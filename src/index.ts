@@ -29,12 +29,12 @@ const agentLoop = async (messages : ModelMessage[]) : Promise<string> => {
 }
 
 // Building the Interface
-
 const rl = readline.createInterface({
     input : process.stdin,
     output : process.stdout
 })
 
+// adding dummy history to test the agent loop
 const HISTORY : ModelMessage[] = []
 const runLoop = () : void => {
     rl.question(">>>input : ", async (query : string)=>{
