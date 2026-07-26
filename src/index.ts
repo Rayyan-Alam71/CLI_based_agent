@@ -1,37 +1,20 @@
 // building an agent loop from scratch
 
 import { createOpenAI, openai } from "@ai-sdk/openai"
-import { generateText, isLoopFinished, type ModelMessage, tool, zodSchema } from "ai"
-import {string, z} from "zod"
-import path from "path"
+import { generateText, isLoopFinished, type ModelMessage } from "ai"
 import readline from "readline"
-import { runBash } from "./utils/command.js"
 import { config } from "dotenv"
+import { TOOLS } from "./utils/tools.js"
 
 config()
 
 
-const currDir = import.meta.dirname
-const WORKING_DIR = path.join(currDir, "..")
+export const WORKING_DIR = process.cwd()
 console.log(WORKING_DIR)
 
-const ollama = createOpenAI({
-    apiKey : process.env.OPENAI_API_KEY!,
-})
-
-
-
-// TOOLS
-const TOOLS = {
-    bash : tool({
-        description : "Run a shell command",
-        inputSchema : zodSchema(z.object({command : z.string()})),
-        execute : (async ({command} : {command : string})=>{
-            const output = runBash(command)
-            return output
-        })
-    })
-}
+// const ollama = createOpenAI({
+//     apiKey : process.env.OPENAI_API_KEY!,
+// })
 
 // Agent Loop
 const agentLoop = async (messages : ModelMessage[]) : Promise<string> => {
@@ -40,7 +23,7 @@ const agentLoop = async (messages : ModelMessage[]) : Promise<string> => {
         stopWhen : isLoopFinished(),
         system : `you are a coding agent at ${WORKING_DIR} . Use bash to solve task. ACT DON'T EXPLAIN
             Your current working directory is : ${WORKING_DIR}
-            Do not use tool if asked for to look for current working directory
+            Use tools to solve the task. You have access to the following tools : ${Object.keys(TOOLS).join(", ")}
         `,
         messages,
         tools : TOOLS
@@ -56,7 +39,7 @@ const rl = readline.createInterface({
 })
 
 // adding dummy history to test the agent loop
-const HISTORY : ModelMessage[] = []
+export const HISTORY : ModelMessage[] = []
 const runLoop = () : void => {
     rl.question(">>>input : ", async (query : string)=>{
         if(query.trim() === "exit"){
