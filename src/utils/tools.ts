@@ -1,8 +1,9 @@
 import { tool, zodSchema } from "ai"
-import { runBash, runEditFile, runReadFile, runWriteFile } from "./command.js"
+import { runBash, runEditFile, runReadFile, runSubagent, runWriteFile } from "./command.js"
 import { z } from "zod"
+
 // TOOLS
-export const TOOLS = {
+ const TOOLS = {
     bash: tool({
         description: "Run a shell command",
         inputSchema: zodSchema(z.object({ command: z.string() })),
@@ -23,7 +24,21 @@ export const TOOLS = {
     }),
     edit_file: tool({
         description: "Edit the content of an existing file with the new content",
-        inputSchema : zodSchema(z.object({filepath : z.string(), oldContent : z.string(), newContent : z.string()})),
-        execute : ({filepath, oldContent, newContent}) => runEditFile(filepath, oldContent, newContent)
+        inputSchema: zodSchema(z.object({ filepath: z.string(), oldContent: z.string(), newContent: z.string() })),
+        execute: ({ filepath, oldContent, newContent }) => runEditFile(filepath, oldContent, newContent)
     })
+}
+
+const PARENT_TOOLS = {
+    ...TOOLS,
+    subAgent: tool({
+        description: "This will spawn a subagent with arrowed single task to perform",
+        inputSchema: zodSchema(z.object({ prompt: z.string().describe("Prompt/Instruction for the subagent to perform") })),
+        execute: ({ prompt }) => runSubagent(prompt)
+    })
+}
+
+export {
+    TOOLS, 
+    PARENT_TOOLS
 }
