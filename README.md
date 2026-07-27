@@ -1,3 +1,9 @@
+
+
+https://github.com/user-attachments/assets/3de9964c-d5b3-4dad-873a-6dc8fb881af0
+
+
+
 # Terminal Agent
 
 A terminal-based AI agent built with the AI SDK that allows users to interact with their filesystem and execute commands using natural language.
