@@ -21,7 +21,7 @@ A terminal-based AI agent built with the AI SDK that allows users to interact wi
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Rayyan-Alam71/CLI_based_agent.git
    cd terminal-agent
    ```
 
