@@ -64,7 +64,7 @@ node dist/index.js
 You will be presented with a prompt:
 
 ```
->>>input : 
+>>>INPUT : 
 ```
 
 You can now interact with the agent using natural language. For example:

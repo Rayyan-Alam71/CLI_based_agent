@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build" : "tsc -b"
+    "build" : "tsc -b",
+    "npm start" : "node ./dist/index.js"
   },
   "bin": {
     "terminal-agent": "./dist/index.js"

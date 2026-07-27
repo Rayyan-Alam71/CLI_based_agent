@@ -43,7 +43,7 @@ const rl = readline.createInterface({
 // adding dummy history to test the agent loop
 export const HISTORY : ModelMessage[] = []
 const runLoop = () : void => {
-    rl.question(">>>input : ", async (query : string)=>{
+    rl.question(">>>INPUT : ", async (query : string)=>{
         if(query.trim() === "exit"){
             console.log(HISTORY)
             rl.close()
