@@ -4,13 +4,13 @@ import { createOpenAI, openai } from "@ai-sdk/openai"
 import { generateText, isLoopFinished, type ModelMessage } from "ai"
 import readline from "readline"
 import { config } from "dotenv"
-import { TOOLS } from "./utils/tools.js"
+import { PARENT_TOOLS, TOOLS } from "./utils/tools.js"
+import { model } from "./utils/model.js"
+import { getRootSystemPrompt } from "./utils/prompt.js"
 
 config()
 
 
-export const WORKING_DIR = process.cwd()
-console.log(WORKING_DIR)
 
 // const ollama = createOpenAI({
 //     apiKey : process.env.OPENAI_API_KEY!,
@@ -18,17 +18,19 @@ console.log(WORKING_DIR)
 
 // Agent Loop
 const agentLoop = async (messages : ModelMessage[]) : Promise<string> => {
-    const { text } = await generateText({
-        model : openai("gpt-4o"),
+    const { text, steps } = await generateText({
+        model : model,
         stopWhen : isLoopFinished(),
-        system : `you are a coding agent at ${WORKING_DIR} . Use bash to solve task. ACT DON'T EXPLAIN
-            Your current working directory is : ${WORKING_DIR}
-            Use tools to solve the task. You have access to the following tools : ${Object.keys(TOOLS).join(", ")}
-        `,
+        system : getRootSystemPrompt(),
         messages,
-        tools : TOOLS
+        tools : PARENT_TOOLS
     })
-
+    console.log("*".repeat(50))
+    for(const step of steps){
+        console.log(step.toolCalls)
+        console.log(step.toolResults)
+        console.log("=".repeat(30))
+    }
     return text
 }
 

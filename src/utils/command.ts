@@ -1,19 +1,22 @@
-import { spawnSync} from "child_process"
+import { spawnSync } from "child_process"
 import * as fs from "node:fs"
 import path from "node:path"
-import { WORKING_DIR } from "../index.js"
+import { generateText, isLoopFinished, type ModelMessage } from "ai"
+import { TOOLS } from "./tools.js"
+import { model, WORKING_DIR } from "./model.js"
+import { getSubagentSystemPrompt } from "./prompt.js"
 
 const BLOCKED_COMMANDS = ["sudo", "rm -rf /", "shutdown", "reboot"]
 
-function checkPathSafety(filePath : string){
+function checkPathSafety(filePath: string) {
     const resolved = path.resolve(WORKING_DIR, filePath)
-    if(!resolved.startsWith(WORKING_DIR)){
+    if (!resolved.startsWith(WORKING_DIR)) {
         throw new Error(`Unsafe file path: ${filePath}`)
     }
     return resolved
 }
 
-function runReadFile(filePath : string, limit ?: number ){
+function runReadFile(filePath: string, limit?: number) {
     try {
         const safeFilePath = checkPathSafety(filePath)
         const fileData = fs.readFileSync(safeFilePath, "utf8")
@@ -26,32 +29,32 @@ function runReadFile(filePath : string, limit ?: number ){
     }
 }
 
-function runBash(command : string) : string{
+function runBash(command: string): string {
     if (BLOCKED_COMMANDS.some((cmd) => command.startsWith(cmd))) {
         console.error("Command is blocked")
         return "Command is blocked"
     }
 
     try {
-        const result = spawnSync("sh", ["-c", command],{
-            cwd : process.cwd(),
-            encoding : "utf8",
-            timeout : 120000
+        const result = spawnSync("sh", ["-c", command], {
+            cwd: process.cwd(),
+            encoding: "utf8",
+            timeout: 120000
         })
         console.log(result)
-        return (result.stdout + result.stderr).trim().slice(0,50000 ) || ""
+        return (result.stdout + result.stderr).trim().slice(0, 50000) || ""
     } catch (error) {
         console.error(`error : ${error}`)
         return 'Error running bash command'
     }
 }
 
-function runWriteFile(filepath : string, content : string){
+function runWriteFile(filepath: string, content: string) {
     try {
         // check if the dir exists
         const dirPath = path.dirname(filepath)
-        if(!fs.existsSync(dirPath)){
-            fs.mkdirSync(dirPath, {recursive : true})
+        if (!fs.existsSync(dirPath)) {
+            fs.mkdirSync(dirPath, { recursive: true })
         }
         const safeFilePath = checkPathSafety(filepath)
         fs.writeFileSync(safeFilePath, content)
@@ -62,11 +65,11 @@ function runWriteFile(filepath : string, content : string){
     }
 }
 
-function runEditFile(filepath : string, oldContent : string, newContent : string){
+function runEditFile(filepath: string, oldContent: string, newContent: string) {
     try {
         const safeFilePath = checkPathSafety(filepath)
         const content = fs.readFileSync(safeFilePath, "utf8")
-        if(!content.includes(oldContent)){
+        if (!content.includes(oldContent)) {
             return `Error : ${oldContent} not found in ${filepath}`
         }
         fs.writeFileSync(safeFilePath, content.replaceAll(oldContent, newContent))
@@ -75,9 +78,38 @@ function runEditFile(filepath : string, oldContent : string, newContent : string
         return `Error : ${error}`
     }
 }
+
+function getSubagentMessages(prompt: string) {
+    const messagesForSubagent: ModelMessage[] = [{
+        role: "system",
+        content: `You are subagent, with a given instruction (TASK). Your task is to use tools, if needed, to perfrom the task. And return a summary of what u did, and along with the summary of the output`
+    }, {
+        role: 'user',
+        content: prompt
+    }]
+    return messagesForSubagent
+}
+
+async function runSubagent(prompt: string) : Promise<string> {
+    try {
+        const { text } = await generateText({
+            model: model,
+            stopWhen: isLoopFinished(),
+            system: getSubagentSystemPrompt(),
+            messages: getSubagentMessages(prompt),
+            tools: TOOLS
+        })
+
+        return text
+    } catch (error) {
+        return `Error occurred : ${error}`
+    }
+}
+
 export {
-    runReadFile, 
+    runReadFile,
     runBash,
     runWriteFile,
-    runEditFile
+    runEditFile,
+    runSubagent
 }
