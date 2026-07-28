@@ -1,5 +1,5 @@
 import { tool, zodSchema } from "ai"
-import { runBash, runEditFile, runReadFile, runSubagent, runWriteFile } from "./command.js"
+import { runBash, runBuildCommand, runEditFile, runReadFile, runSubagent, runWriteFile } from "./command.js"
 import { z } from "zod"
 
 type TodoStatus = "pending" | "in_progress" | "completed" | "failed"
@@ -37,6 +37,14 @@ const TODOS : TodoItem[]= []
         description: "Edit the content of an existing file with the new content",
         inputSchema: zodSchema(z.object({ filepath: z.string(), oldContent: z.string(), newContent: z.string() })),
         execute: (async ({ filepath, oldContent, newContent }) => {return runEditFile(filepath, oldContent, newContent)})
+    }),
+    build_project : tool({
+        description : "Build the project with given build command to check for errors",
+        inputSchema : zodSchema(z.object({})),
+        execute : (async ()=>{
+            const result = runBuildCommand()
+            return result
+        })
     }),
     update_todos : tool({
         description : "Create or update the todo list for multi-step complex task",
