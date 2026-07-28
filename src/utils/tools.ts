@@ -2,6 +2,17 @@ import { tool, zodSchema } from "ai"
 import { runBash, runEditFile, runReadFile, runSubagent, runWriteFile } from "./command.js"
 import { z } from "zod"
 
+type TodoStatus = "pending" | "in_progress" | "completed" | "failed"
+
+interface TodoItem {
+    id : string
+    title : string
+    description : string
+    status : TodoStatus
+}
+
+const TODOS : TodoItem[]= []
+
 // TOOLS
  const TOOLS = {
     bash: tool({
@@ -15,18 +26,38 @@ import { z } from "zod"
     read_file: tool({
         description: "Read a file with given filepath",
         inputSchema: zodSchema(z.object({ filepath: z.string().describe("path of the file to be read"), limit: z.number().optional().describe("limit to read number of lines") })),
-        execute: (async ({ filepath, limit }) => runReadFile(filepath, limit))
+        execute: (async ({ filepath, limit }) => {return runReadFile(filepath, limit)})
     }),
     write_file: tool({
         description: "Write content to a file",
         inputSchema: zodSchema(z.object({ filepath: z.string(), content: z.string() })),
-        execute: ({ filepath, content }) => runWriteFile(filepath, content)
+        execute: (async ({ filepath, content }) => {return runWriteFile(filepath, content)})
     }),
     edit_file: tool({
         description: "Edit the content of an existing file with the new content",
         inputSchema: zodSchema(z.object({ filepath: z.string(), oldContent: z.string(), newContent: z.string() })),
-        execute: ({ filepath, oldContent, newContent }) => runEditFile(filepath, oldContent, newContent)
-    })
+        execute: (async ({ filepath, oldContent, newContent }) => {return runEditFile(filepath, oldContent, newContent)})
+    }),
+    update_todos : tool({
+        description : "Create or update the todo list for multi-step complex task",
+        inputSchema : zodSchema(z.object({
+            todos : z.array(z.object({
+                id : z.string(),
+                title : z.string().describe("Title of the todo"),
+                description : z.string().describe("Comprehensive description about the todo"),
+                status : z.enum(["pending", "in_progress", "completed", "failed"])
+            }))
+        })),
+        execute : async ({todos})=>{
+            TODOS.splice(0, TODOS.length, ...todos)
+            console.log(TODOS)
+
+            return {
+                success : true,
+                todos : TODOS
+            }
+        }
+    }) 
 }
 
 const PARENT_TOOLS = {
@@ -34,7 +65,7 @@ const PARENT_TOOLS = {
     subAgent: tool({
         description: "This will spawn a subagent with arrowed single task to perform",
         inputSchema: zodSchema(z.object({ prompt: z.string().describe("Prompt/Instruction for the subagent to perform") })),
-        execute: ({ prompt }) => runSubagent(prompt)
+        execute: (async ({ prompt }) => {return runSubagent(prompt)})
     })
 }
 
