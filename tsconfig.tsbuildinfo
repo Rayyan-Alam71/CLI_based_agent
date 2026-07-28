@@ -1,1 +1,1 @@
-{"root":["./src/index.ts","./src/utils/command.ts","./src/utils/model.ts","./src/utils/prompt.ts","./src/utils/tools.ts"],"version":"5.9.3"}
+{"root":["./src/index.ts","./src/temp.ts","./src/utils/command.ts","./src/utils/model.ts","./src/utils/prompt.ts","./src/utils/todos.ts","./src/utils/tools.ts"],"version":"5.9.3"}
