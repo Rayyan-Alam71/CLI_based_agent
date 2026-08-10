@@ -96,6 +96,7 @@ function runBuildCommand(){
             cwd: WORKING_DIR,
             encoding: "utf8",  
         })
+        console.log("Result from the Build command =========")
         console.log(result)
         return (result.stdout + result.stderr).trim().slice(0, 50000) || ""
     } catch (error) {
@@ -144,8 +145,8 @@ function runWriteFile(filepath: string, content: string) {
 function runEditFile(filepath: string, oldContent: string, newContent: string) {
     try {
         const safeFilePath = validatePath(filepath)
-        const content = fs.readFileSync(safeFilePath, "utf8")
-        if (!content.includes(oldContent)) {
+        const content = fs.readFileSync(safeFilePath, "utf8").trim()
+        if (!content.includes(oldContent.trim())) {
             return `Error : ${oldContent} not found in ${filepath}`
         }
         fs.writeFileSync(safeFilePath, content.replaceAll(oldContent, newContent))
@@ -188,5 +189,6 @@ export {
     runWriteFile,
     runEditFile,
     runSubagent,
-    runBuildCommand
+    runBuildCommand,
+    validatePath
 }
