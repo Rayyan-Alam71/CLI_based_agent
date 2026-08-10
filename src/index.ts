@@ -3,6 +3,7 @@
 import { createOpenAI, openai } from "@ai-sdk/openai"
 import { generateText, isLoopFinished, type ModelMessage } from "ai"
 import readline from "readline"
+import * as fs from "node:fs"
 import { config } from "dotenv"
 import { PARENT_TOOLS, TOOLS } from "./utils/tools.js"
 import { model } from "./utils/model.js"
@@ -10,8 +11,8 @@ import { getRootSystemPrompt } from "./utils/prompt.js"
 
 config()
 
-
-
+const dirs = fs.readdirSync(process.cwd())
+console.log(dirs)
 // const ollama = createOpenAI({
 //     apiKey : process.env.OPENAI_API_KEY!,
 // })

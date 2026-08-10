@@ -1,4 +1,4 @@
-# Utils Module Overview
+# Utils Folder Overview
 
 This document provides a detailed overview of the utility modules in the `src/utils/` directory, which form the core functionality of the terminal agent.
 

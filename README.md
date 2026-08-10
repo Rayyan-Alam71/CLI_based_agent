@@ -13,6 +13,8 @@ A terminal-based AI agent built with the AI SDK that allows users to interact wi
 - Natural language interface for file operations (read, write, edit)
 - Ability to run bash commands
 - Subagent delegation for complex tasks
+- Persistent task tracking with write/read/edit task tools
+- Task state saved to `.tasks/task.json` for multi-step workflows
 - Interactive REPL loop
 - Built with TypeScript and the AI SDK
 - Comprehensive documentation available in `/docs` directory
@@ -74,6 +76,9 @@ You can now interact with the agent using natural language. For example:
 - "List the files in the current directory"
 - "Run the command `ls -la`"
 - "Create a subagent to summarize the contents of the src directory"
+- "Create a persistent task list for implementing a new feature"
+- "Read the current tasks"
+- "Update the status of task 1 to in_progress"
 
 Type `exit` to quit the agent.
 
@@ -83,6 +88,9 @@ Type `exit` to quit the agent.
 terminal-agent/
 ├── src/
 │   ├── index.ts          # Main agent loop and REPL interface
+│   ├── task/
+│   │   ├── taskUtils.ts  # Task persistence helpers for read/write/edit task operations
+│   │   └── types.ts      # Task-related TypeScript types
 │   └── utils/
 │       ├── command.ts    # Tool implementations (bash, file operations, subagents)
 │       ├── model.ts      # AI model configuration
@@ -90,6 +98,8 @@ terminal-agent/
 │       └── tools.ts      # Tool definitions for the AI SDK
 ├── docs/
 │   └── utils-overview.md # Detailed documentation of utility modules
+├── .tasks/
+│   └── task.json         # Persisted task state created by the agent
 ├── node_modules/
 ├── package.json
 ├── tsconfig.json
@@ -104,18 +114,34 @@ The agent uses a loop that:
 2. Sends the input (along with conversation history) to an AI language model
 3. The model decides which tools to use based on the available tools defined in `src/utils/tools.ts`
 4. The agent executes the selected tools (file operations, bash commands, subagent creation)
-5. The results are fed back to the model for further reasoning or to produce a final answer
-6. The conversation history is maintained to allow for contextual interactions
+5. For long-running or multi-step work, it can persist task state using the task tools and store it in `.tasks/task.json`
+6. The results are fed back to the model for further reasoning or to produce a final answer
+7. The conversation history is maintained to allow for contextual interactions
 
 ## Tools Available
 
 The agent provides the following tools to the underlying AI model:
 
 - `bash`: Execute bash commands
-- `readFile`: Read the contents of a file
-- `writeFile`: Write content to a file (creates if doesn't exist, overwrites otherwise)
-- `editFile`: Edit an existing file by replacing a specific string
-- `runSubagent`: Delegate a task to a subagent for complex operations
+- `read_file`: Read the contents of a file
+- `write_file`: Write content to a file (creates if doesn't exist, overwrites otherwise)
+- `edit_file`: Edit an existing file by replacing a specific string
+- `build_project`: Build the project to check for TypeScript or compile errors
+- `update_todos`: Manage an in-memory todo list for complex multi-step work
+- `write_task`: Create or replace the persisted task list in `.tasks/task.json`
+- `read_task`: Read the persisted task list from `.tasks/task.json`
+- `edit_task`: Update an existing task entry incrementally as work progresses
+- `subAgent`: Delegate a task to a subagent for complex operations
+
+## Task Persistence
+
+For multi-step tasks, the agent can persist a task record between turns. The workflow is:
+
+1. Use `read_task` to inspect the current task list
+2. Use `edit_task` to update existing tasks as progress changes
+3. Use `write_task` when creating a fresh task snapshot or replacing the full task list
+
+Task data is stored in `.tasks/task.json`, which makes it easier to resume long-running work without losing context.
 
 ## Documentation
 
@@ -157,3 +183,4 @@ ISC
 
 - Built with the [AI SDK](https://sdk.vercel.ai/docs)
 - Inspired by the Claude Code CLI and similar agent frameworks
+
