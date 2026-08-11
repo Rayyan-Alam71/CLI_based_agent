@@ -3,10 +3,10 @@ import * as path from "node:path"
 import type { Task } from "./types.js"
 import { WORKING_DIR } from "../utils/model.js"
 
-export const TASK_DIR = ".tasks"
+export const TASK_DIR = path.join(WORKING_DIR, ".tasks")
 export let LAST_ID = 0
 export const TASK_EXT = ".json"
-export const TaskFilePath = path.join(WORKING_DIR, TASK_DIR, `task${TASK_EXT}`)
+export const TaskFilePath = path.join(TASK_DIR, `task${TASK_EXT}`)
 
 
 function ensureTaskDirectory(){
@@ -23,7 +23,7 @@ function writeTask(tasks : Task[]){
         tasks : tasks
     }
     try {
-        fs.writeFileSync(TaskFilePath, JSON.stringify(taskToBeWritten), "utf-8")
+        fs.writeFileSync(TaskFilePath, JSON.stringify(taskToBeWritten, null, 2), "utf-8")
 
     } catch (error) {
         throw new Error(`Error while writing to ${TASK_DIR} directory : ${error}`)
@@ -58,14 +58,23 @@ function editTask(taskid : string, updatedTaskForRespectiveId : Task){
 
         // get the particular task with the taskid
 
-        let targetTask;
+        let targetTaskIdx;
 
-        tasks.map((task : Task) =>{
-            if(task.taskid === taskid) targetTask = task
-        })
-        if(targetTask){
-            console.log(`Task with id : ${taskid} found`)
-            console.log(tasks[taskid])
+        tasks.findIndex((task : Task)=>task.taskid === taskid)
+
+        if(targetTaskIdx && targetTaskIdx != -1){
+            tasks[targetTaskIdx] = {
+                ...tasks[targetTaskIdx],
+                ...updatedTaskForRespectiveId,
+                taskid
+            }
+
+            fs.writeFileSync(TaskFilePath, JSON.stringify(tasks, null, 2), "utf-8")
+
+            return {
+                success : true,
+                task : tasks[targetTaskIdx]
+            }
         }
         else{
             return `no task with id :${taskid} found`

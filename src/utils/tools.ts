@@ -69,6 +69,31 @@ const TOOLS = {
             }
         }
     }),
+    
+}
+
+// Only the parent agent should have access to task management  tools
+const PARENT_TOOLS = {
+    ...TOOLS,
+    subAgent: tool({
+        description: `Delegate one bounded, independently executable objective to a subagent.
+
+                    Use this when the parent agent only needs the result and does not need
+                    to supervise the subagent's internal work.
+
+                    The subagent should receive:
+                    - one clear objective
+                    - scope boundaries
+                    - whether modifications are allowed
+                    - expected output
+
+                    The subagent returns a concise result to the parent.
+                    The parent remains responsible for planning, task/todo state,
+                    integration, and final verification.
+                `,
+        inputSchema: zodSchema(z.object({ prompt: z.string().describe("A single bounded objective with explicit scope and expected output") })),
+        execute: (async ({ prompt }) => { return runSubagent(prompt) })
+    }),
     write_task: tool({
         description: "Write the tasks to the .tasks/task.json file",
         inputSchema: zodSchema(z.object({
@@ -108,15 +133,6 @@ const TOOLS = {
         execute : async ({task, taskid}) => {
             return editTask(taskid, {...task, taskid : taskid})
         }
-    })
-}
-
-const PARENT_TOOLS = {
-    ...TOOLS,
-    subAgent: tool({
-        description: "This will spawn a subagent with arrowed single task to perform",
-        inputSchema: zodSchema(z.object({ prompt: z.string().describe("Prompt/Instruction for the subagent to perform") })),
-        execute: (async ({ prompt }) => { return runSubagent(prompt) })
     })
 }
 
