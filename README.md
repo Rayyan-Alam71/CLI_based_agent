@@ -8,6 +8,29 @@ https://github.com/user-attachments/assets/3de9964c-d5b3-4dad-873a-6dc8fb881af0
 
 A terminal-based AI agent built with the AI SDK that allows users to interact with their filesystem and execute commands using natural language.
 
+# Architecture flow
+
+```mermaid
+   flowchart TD
+    A[User enters prompt] --> B[Readline REPL in src/index.ts]
+    B --> C[Build message history]
+    C --> D[Agent loop calls LLM]
+    D --> E[LLM decides which tools to use]
+    E --> F{Tool type}
+    F -->|File ops| G[command.ts]
+    F -->|Shell| G
+    F -->|Task persistence| H[task/taskUtils.ts]
+    F -->|Subagent| I[Subagent workflow]
+    G --> J[Filesystem / shell / build]
+    H --> K[.tasks/task.json on disk]
+    I --> L[Secondary LLM call with bounded scope]
+    J --> M[Result returned to agent]
+    L --> M
+    M --> N[Assistant reply shown to user]
+    N --> B
+
+```
+
 ## Features
 
 - Natural language interface for file operations (read, write, edit)
