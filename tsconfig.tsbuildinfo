@@ -1,1 +1,1 @@
-{"root":["./src/index.ts","./src/task/taskutils.ts","./src/task/types.ts","./src/utils/command.ts","./src/utils/model.ts","./src/utils/prompt.ts","./src/utils/tools.ts"],"version":"5.9.3"}
+{"root":["./src/index.ts","./src/task/taskutils.ts","./src/task/types.ts","./src/utils/command.ts","./src/utils/compact.ts","./src/utils/config.ts","./src/utils/model.ts","./src/utils/prompt.ts","./src/utils/tools.ts"],"version":"5.9.3"}

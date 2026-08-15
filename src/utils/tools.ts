@@ -13,7 +13,7 @@ interface TodoItem {
     status: TodoStatus
 }
 
-const TODOS: TodoItem[] = []
+export const TODOS: TodoItem[] = []
 
 // TOOLS
 const TOOLS = {
@@ -61,7 +61,6 @@ const TOOLS = {
         })),
         execute: async ({ todos }) => {
             TODOS.splice(0, TODOS.length, ...todos)
-            console.log(TODOS)
 
             return {
                 success: true,

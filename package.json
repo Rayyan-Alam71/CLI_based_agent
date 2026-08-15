@@ -1,15 +1,18 @@
 {
-  "name": "terminal-agent",
-  "version": "1.0.0",
-  "description": "",
+  "name": "@rayyanalam047/terminal-cli-agent",
+  "version": "2.0.3",
+  "description": "A terminal-based AI agent that can execute commands and provide responses based on user input.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build" : "tsc -b",
-    "npm start" : "node ./dist/index.js"
+    "build": "tsc -b",
+    "npm start": "node ./dist/index.js"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "bin": {
-    "terminal-agent": "./dist/index.js"
+    "terminal-cli-agent": "dist/index.js"
   },
   "keywords": [],
   "author": "",
@@ -19,7 +22,10 @@
     "@ai-sdk/openai": "^4.0.20",
     "@types/dotenv": "^6.1.1",
     "ai": "^7.0.37",
+    "boxen": "^8.0.1",
+    "chalk": "^5.3.0",
     "dotenv": "^17.4.2",
+    "ora": "^9.4.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
