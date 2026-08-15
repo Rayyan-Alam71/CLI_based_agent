@@ -2,7 +2,11 @@
 
 A terminal-based AI agent built with the AI SDK that allows users to interact with their filesystem and execute commands using natural language. Now available as an easy-to-install npm package!
 
-![Terminal Agent Demo](https://github.com/user-attachments/assets/3de9964c-d5b3-4dad-873a-6dc8fb881af0)
+## A Working Demo
+
+https://github.com/user-attachments/assets/7e408ffb-d492-4ccb-b28d-7293404d2736
+
+
 
 ## 🚀 Quick Start (Global Installation)
 
