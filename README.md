@@ -1,48 +1,48 @@
+# Terminal Agent CLI
 
+A terminal-based AI agent built with the AI SDK that allows users to interact with their filesystem and execute commands using natural language. Now available as an easy-to-install npm package!
 
-https://github.com/user-attachments/assets/3de9964c-d5b3-4dad-873a-6dc8fb881af0
+![Terminal Agent Demo](https://github.com/user-attachments/assets/3de9964c-d5b3-4dad-873a-6dc8fb881af0)
 
+## 🚀 Quick Start (Global Installation)
 
+The easiest way to use Terminal Agent is to install it globally via npm:
 
-# Terminal Agent
-
-A terminal-based AI agent built with the AI SDK that allows users to interact with their filesystem and execute commands using natural language.
-
-# Architecture flow
-
-```mermaid
-   flowchart TD
-    A[User enters prompt] --> B[Readline REPL in src/index.ts]
-    B --> C[Build message history]
-    C --> D[Agent loop calls LLM]
-    D --> E[LLM decides which tools to use]
-    E --> F{Tool type}
-    F -->|File ops| G[command.ts]
-    F -->|Shell| G
-    F -->|Task persistence| H[task/taskUtils.ts]
-    F -->|Subagent| I[Subagent workflow]
-    G --> J[Filesystem / shell / build]
-    H --> K[.tasks/task.json on disk]
-    I --> L[Secondary LLM call with bounded scope]
-    J --> M[Result returned to agent]
-    L --> M
-    M --> N[Assistant reply shown to user]
-    N --> B
-
+```bash
+npm install -g @rayyanalam047/terminal-agent-cli@2.0.3
 ```
 
-## Features
+Once installed, you can run it from anywhere in your terminal:
 
-- Natural language interface for file operations (read, write, edit)
-- Ability to run bash commands
-- Subagent delegation for complex tasks
-- Persistent task tracking with write/read/edit task tools
-- Task state saved to `.tasks/task.json` for multi-step workflows
-- Interactive REPL loop
-- Built with TypeScript and the AI SDK
-- Comprehensive documentation available in `/docs` directory
+```bash
+terminal-agent
+```
 
-## Installation
+## 🔑 API Key Setup
+
+Before using the agent, you need to set up your OpenAI API key. The agent includes a built-in command for this:
+
+1. Start the agent:
+   ```bash
+   terminal-agent
+   ```
+
+2. Set your API key using the `/setkey` command:
+   ```
+   >>>INPUT : /setkey sk-your-openai-api-key-here
+   ```
+
+   Alternatively, you can be prompted for it:
+   ```
+   >>>INPUT : /setkey
+   Enter your OpenAI API key: sk-your-openai-api-key-here
+   ```
+
+Your API key will be securely saved and used for all subsequent sessions.
+
+## 📦 Local Installation (Development)
+
+If you prefer to run from source or contribute to the project:
 
 1. Clone the repository:
    ```bash
@@ -60,52 +60,84 @@ A terminal-based AI agent built with the AI SDK that allows users to interact wi
    npm run build
    ```
 
-4. Ensure you have the necessary API keys in a `.env` file (see Configuration).
+4. Set up your API key as described above, then run:
+   ```bash
+   npm start
+   ```
 
-## Configuration
+   Or directly:
+   ```bash
+   node dist/index.js
+   ```
 
-Copy `.env.example` into `.env` file and put your OPENAI_API_KEY there.
+## 🎯 Features
+
+- Natural language interface for file operations (read, write, edit)
+- Ability to run bash commands
+- Subagent delegation for complex tasks
+- Persistent task tracking with write/read/edit task tools
+- Task state saved to `.tasks/task.json` for multi-step workflows
+- Interactive REPL loop with beautiful TUI (Terminal User Interface)
+- Built-in API key management via `/setkey` command
+- Color-coded boxes for clear visual separation of user input, tool calls, and agent responses
+- Todo management capabilities
+- Built with TypeScript and the AI SDK
+
+## 🏗️ Architecture
+
+```mermaid
+flowchart TD
+    A[User enters prompt] --> B[Readline REPL in src/index.ts]
+    B --> C[Build message history]
+    C --> D[Agent loop calls LLM]
+    D --> E[LLM decides which tools to use]
+    E -->|File ops| F[src/utils/command.ts]
+    E -->|Shell| F
+    E -->|Task persistence| G[src/task/taskUtils.ts]
+    E -->|Subagent| H[Subagent workflow]
+    F --> I[Filesystem / shell / build]
+    G --> J[.tasks/task.json on disk]
+    H --> K[Secondary LLM call with bounded scope]
+    I --> L[Result returned to agent]
+    K --> L
+    L --> M[Assistant reply shown to user]
+    M --> B
+```
+
+## 🖥️ Terminal User Interface
+
+The agent features a rich TUI with:
+- **Welcome banner** when starting
+- **Colored input prompts** (green bold)
+- **Thinking spinner** while processing
+- **Boxed sections** for:
+  - User input (green border)
+  - Tool calls/results (yellow border)
+  - Agent responses (blue border)
+- **Persistent todo list** display (yellow)
+- **Visual status indicators** for todos (green check, blue in-progress, red fail)
+
+## 💡 Usage Examples
+
+After starting the agent and setting your API key, you can interact with it using natural language:
 
 ```
-OPENAI_API_KEY=your_openai_api_key_here
+>>>INPUT : Read the file `src/index.ts`
+>>>INPUT : Write a file `hello.txt` with content 'Hello World'
+>>>INPUT : List the files in the current directory
+>>>INPUT : Run the command `ls -la`
+>>>INPUT : Create a subagent to summarize the contents of the src directory
+>>>INPUT : Create a persistent task list for implementing a new feature
+>>>INPUT : Read the current tasks
+>>>INPUT : Update the status of task 1 to in_progress
 ```
 
-Note: The project currently uses the OpenAI API via the AI SDK. You may need to adjust the model configuration in `src/utils/model.ts` if you wish to use a different provider.
+Special commands:
+- `exit` - Quit the application
+- `help` - Show help information
+- `/setkey <api_key>` - Set your OpenAI API key
 
-## Usage
-
-Start the agent:
-
-```bash
-npm start
-```
-
-Or directly:
-
-```bash
-node dist/index.js
-```
-
-You will be presented with a prompt:
-
-```
->>>INPUT : 
-```
-
-You can now interact with the agent using natural language. For example:
-
-- "Read the file `src/index.ts`"
-- "Write a file `hello.txt` with content 'Hello World'"
-- "List the files in the current directory"
-- "Run the command `ls -la`"
-- "Create a subagent to summarize the contents of the src directory"
-- "Create a persistent task list for implementing a new feature"
-- "Read the current tasks"
-- "Update the status of task 1 to in_progress"
-
-Type `exit` to quit the agent.
-
-## Project Structure
+## 🏗️ Project Structure
 
 ```
 terminal-agent/
@@ -129,9 +161,9 @@ terminal-agent/
 └── README.md
 ```
 
-## How It Works
+## 🔧 How It Works
 
-The agent uses a loop that:
+The agent uses a sophisticated loop that:
 
 1. Reads user input from the terminal
 2. Sends the input (along with conversation history) to an AI language model
@@ -141,7 +173,7 @@ The agent uses a loop that:
 6. The results are fed back to the model for further reasoning or to produce a final answer
 7. The conversation history is maintained to allow for contextual interactions
 
-## Tools Available
+## 🛠️ Tools Available
 
 The agent provides the following tools to the underlying AI model:
 
@@ -156,7 +188,7 @@ The agent provides the following tools to the underlying AI model:
 - `edit_task`: Update an existing task entry incrementally as work progresses
 - `subAgent`: Delegate a task to a subagent for complex operations
 
-## Task Persistence
+## 📋 Task Persistence
 
 For multi-step tasks, the agent can persist a task record between turns. The workflow is:
 
@@ -166,12 +198,12 @@ For multi-step tasks, the agent can persist a task record between turns. The wor
 
 Task data is stored in `.tasks/task.json`, which makes it easier to resume long-running work without losing context.
 
-## Documentation
+## 📚 Documentation
 
 Detailed documentation of the utility modules is available in the `/docs` directory:
 - [Utils Module Overview](docs/utils-overview.md) - Comprehensive guide to the utility modules (`command.ts`, `model.ts`, `prompt.ts`, `tools.ts`)
 
-## Configuration Details
+## ⚙️ Configuration Details
 
 ### Model Configuration (`src/utils/model.ts`)
 
@@ -182,7 +214,7 @@ The model is currently configured to use OpenAI's GPT-4 model via the AI SDK. Yo
 - `getRootSystemPrompt()`: Defines the behavior of the main agent
 - `getSubagentSystemPrompt()`: Defines the behavior of subagents
 
-## Development
+## 👨‍💻 Development
 
 To modify the agent and rebuild:
 
@@ -190,20 +222,22 @@ To modify the agent and rebuild:
 2. Run `npm run build` to compile to JavaScript in the `dist/` directory
 3. Run the agent as described in the Usage section
 
-## Dependencies
+## 📦 Dependencies
 
 - `ai`: The AI SDK for building AI-powered applications
 - `@ai-sdk/openai`: OpenAI provider for the AI SDK
 - `dotenv`: For loading environment variables
 - `zod`: For schema validation (used with the AI SDK)
+- `chalk`: For terminal string styling
+- `ora`: For elegant terminal spinners
+- `boxen`: For creating boxes in the terminal
 - `@types/node`: TypeScript definitions for Node.js (dev dependency)
 
-## License
+## 📄 License
 
 ISC
 
-## Acknowledgments
+## 🙏 Acknowledgments
 
 - Built with the [AI SDK](https://sdk.vercel.ai/docs)
 - Inspired by the Claude Code CLI and similar agent frameworks
-
